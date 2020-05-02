@@ -1,0 +1,12 @@
+<html>
+<head>
+    @{
+            string title = @Document.ContainsKey(Keys.Title) ? $"Statiq - {Document.GetString(Keys.Title)}" : "Statiq";
+        }
+        <title>@title</title>
+</head>
+<body>
+    @RenderBody()
+</body>
+
+</html>
