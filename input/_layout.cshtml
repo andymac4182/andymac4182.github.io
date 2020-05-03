@@ -1,12 +1,108 @@
+<!DOCTYPE html>
 <html>
-<head>
-    @{
-            string title = @Document.ContainsKey(Keys.Title) ? $"Statiq - {Document.GetString(Keys.Title)}" : "Statiq";
+    <head>
+        <!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-165378093-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-165378093-1');
+</script>
+
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=Roboto+Slab:wght@400;700&family=Roboto:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap" rel="stylesheet" data-no-mirror>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.19.0/themes/prism.css">
+        <link href="/assets/css/styles.css" rel="stylesheet" />
+
+        <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+        <script src="https://kit.fontawesome.com/a1cad7ed9a.js" crossorigin="anonymous" data-no-mirror></script>
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@8.4.8/dist/mermaid.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.6.1/dist/svg-pan-zoom.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/prismjs@1.19.0/components/prism-core.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/prismjs@1.19.0/plugins/autoloader/prism-autoloader.min.js" data-no-mirror></script>
+        
+		@RenderSection(SectionNames.Head, false)
+
+        @{
+            string title = @Document.ContainsKey(Keys.Title) ? $"{Document.GetString(Keys.Title)} - Andrew Mac" : "Andrew Mac";
         }
         <title>@title</title>
-</head>
-<body>
-    @RenderBody()
-</body>
+    </head>
+<body >
+        <header class="site-header fixed-top bg-black border-bottom border-dark">
+    <a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
+    <div class="container">
+
+        <!-- Navbar -->
+        <nav class="navbar main-nav navbar-expand-lg navbar-dark" aria-label="Main navigation">
+            <a href="/" class="navbar-brand d-inline-flex text-uppercase">Andrew Mac</i></a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse text-uppercase" id="navbarContent">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a href="/blog" class="nav-link">Blog</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/about" class="nav-link">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="https://github.com/andymac4182" class="nav-link">Github</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+</header>
+<main id="content">
+@RenderBody()
+</main>
+<footer class="bg-light text-black">
+        <div class="container py-5 py-md-6">
+            <div class="row justify-content-md-between">
+                <div class="col-4 col-md-2">
+                    <h2 class="h6">About</h2>
+                    <ul class="nav flex-column">
+                        <li class="mb-1"><a href="#" class="text-muted">Team</a></li>
+                        <li class="mb-1"><a href="#" class="text-muted">Careers</a></li>
+                        <li class="mb-1"><a href="#" class="text-muted">Blog</a></li>
+                        <li class="mb-1"><a href="#" class="text-muted">Privacy Policy</a></li>
+                    </ul>
+                </div>
+                <div class="col-4 col-md-2">
+                    <h2 class="h6 mb-3">Services</h2>
+                    <ul class="nav flex-column">
+                        <li class="mb-1"><a href="#" class="text-muted">Branding</a></li>
+                        <li class="mb-1"><a href="#" class="text-muted">Design</a></li>
+                        <li class="mb-1"><a href="#" class="text-muted">Photography</a></li>
+                        <li class="mb-1"><a href="#" class="text-muted">UX/UI</a></li>
+                    </ul>
+                </div>
+                <div class="col-4 col-md-2">
+                    <h2 class="h6 mb-3">Social</h2>
+                    <ul class="nav flex-column">
+                        <li class="mb-1"><a href="#" class="text-muted">Twitter</a></li>
+                        <li class="mb-1"><a href="#" class="text-muted">Instagram</a></li>
+                        <li class="mb-1"><a href="#" class="text-muted">Dribbble</a></li>
+                        <li class="mb-1"><a href="#" class="text-muted">Facebook</a></li>
+                    </ul>
+                </div>
+                <div class="col-sm-12 col-md-4 mt-4 mt-md-0">
+                    <h2 class="h6 mb-3">Company</h2>
+                    <p class="text-muted">Focus is a responsive website theme based on Bootstrap 4. We help you to create a site that your users will love.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    </body>
 
 </html>
