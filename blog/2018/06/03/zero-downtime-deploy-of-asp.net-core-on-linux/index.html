@@ -1,0 +1,211 @@
+﻿<!DOCTYPE html><html><head>
+        <!-- Global site tag (gtag.js) - Google Analytics -->
+<script async="" src="/mirror/www.googletagmanager.com/gtag/js"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-165378093-1');
+</script>
+
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&amp;family=Roboto+Slab:wght@400;700&amp;family=Roboto:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&amp;display=swap" rel="stylesheet" data-no-mirror="">
+        <link rel="stylesheet" href="/mirror/cdn.jsdelivr.net/npm/prismjs@1.19.0/themes/prism.css">
+        <link href="/assets/css/styles.css" rel="stylesheet">
+
+        <script src="/mirror/code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+        <script src="/mirror/cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+        <script src="/mirror/stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+        <script src="https://kit.fontawesome.com/a1cad7ed9a.js" crossorigin="anonymous" data-no-mirror=""></script>
+        <script src="/mirror/cdn.jsdelivr.net/npm/mermaid@8.4.8/dist/mermaid.min.js"></script>
+        <script src="/mirror/cdn.jsdelivr.net/npm/svg-pan-zoom@3.6.1/dist/svg-pan-zoom.min.js"></script>
+        <script src="/mirror/cdn.jsdelivr.net/npm/prismjs@1.19.0/components/prism-core.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/prismjs@1.19.0/plugins/autoloader/prism-autoloader.min.js" data-no-mirror=""></script>
+        
+		
+
+        <title>Zero downtime deploy of ASP.NET Core on Linux - Andrew Mac</title>
+    </head>
+<body>
+        <header class="site-header fixed-top bg-black border-bottom border-dark">
+    <a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
+    <div class="container">
+
+        <!-- Navbar -->
+        <nav class="navbar main-nav navbar-expand-lg navbar-dark" aria-label="Main navigation">
+            <a href="/" class="navbar-brand d-inline-flex text-uppercase">Andrew Mac</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse text-uppercase" id="navbarContent">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a href="/blog" class="nav-link">Blog</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/about" class="nav-link">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="https://github.com/andymac4182" class="nav-link">Github</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+</header>
+<main id="content">
+
+<div class="container py-6">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <h1>Zero downtime deploy of ASP.NET Core on Linux</h1>
+            <hr class="border-1 border-light my-4 ml-0 text-left w-15" role="presentation">
+            <div class="d-flex align-items-center mb-3">
+                    <div class="text-white-50">
+                        Sunday, June 3, 2018 in
+                        <a href="/blog/topics/dotnet"><span class="badge badge-dark">.NET</span></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<div class="bg-white text-black">
+            <div class="container py-2">
+                <div class="bg-white mt-n6 px-3 px-lg-0">
+                    <div class="row justify-content-center py-4 py-lg-5">
+                        <div class="col-md-10 col-lg-8">
+                            <h3 id="problem">Problem</h3>
+<p>Deploy an ASP.NET Core 2.1 web application to an AWS Amazon Linux 2 VM with zero downtime to allow for deployments while traffic is being handled. This post is targeted at&nbsp;.NET developers who have minimal or zero experience with AWS or Linux.</p>
+<h4 id="tech-stack">Tech Stack</h4>
+<ul>
+<li><a href="https://octopus.com/">Octopus Deploy</a></li>
+<li><a href="https://docs.microsoft.com/en-us/aspnet/core/?view=aspnetcore-2.1">ASP.NET Core 2.1</a> web app</li>
+<li>AWS <a href="https://docs.aws.amazon.com/elasticloadbalancing/latest/application/introduction.html">Application Load Balancer</a></li>
+<li><a href="https://aws.amazon.com/amazon-linux-2/">AWS Amazon Linux 2</a> virtual machine</li>
+</ul>
+<h3 id="solution">Solution</h3>
+<p>This post will start after the build has been completed and packages generated.</p>
+<h4 id="step-1-deploy-application">Step 1 - Deploy Application</h4>
+<p>This step was inspired by the following posts.</p>
+<ul>
+<li><a href="https://octopus.com/blog/will-it-deploy-episode-07">https://octopus.com/blog/will-it-deploy-episode-07</a></li>
+<li><a href="https://octopus.com/blog/deploying-an-octopus-pi">https://octopus.com/blog/deploying-an-octopus-pi</a></li>
+</ul>
+<p>The equivalent of a Windows Service on Linux is using a supervisor to start and monitor a process and ensure it is running successfully. On Amazon Linux 2 the installed supervisor is <code>systemd</code> <a href="https://en.wikipedia.org/wiki/Systemd">https://en.wikipedia.org/wiki/Systemd</a>. <code>systemd</code> manages services using files saved in <code>/lib/systemd/system</code>. These files describes the location of your application and various parameters for running the application. This file has been set up to run as the default user from AWS <code>ec2-user</code>, it will also restart the service if it dies after 10 seconds.</p>
+<p>This file is used as a template to be used by <code>Deploy.sh</code> that will set up the service and start the service under <code>systemd</code>.</p>
+<p><code>Deploy.sh</code> does a few items to manage the service.</p>
+<ol>
+<li>Set the name of the service from the package being deployed.</li>
+<li>Enable the application to be executed. <em>Due to the package possibly coming from Windows the permissions on the file may not have it as an executable.</em></li>
+<li>Stop the service before updating to the new location of the application</li>
+<li>Update <code>SERVICENAME</code> in the <code>Template.service</code> file.</li>
+<li>Copy <code>Template.service</code> to <code>/lib/systemd/system/</code> folder named as the service name.</li>
+<li>Reload the <code>systemd</code> daemon and enable and start the application service</li>
+<li>Outputs the last 10 logs of the service using <code>journalctl</code> after 2 seconds</li>
+<li>Ensures the service is running</li>
+</ol>
+<h4 id="step-2-set-up-loadbalancer">Step 2 - Set up Load&nbsp;Balancer</h4>
+<p>Using a load balancer such as Amazon’s ALB will enable requests to complete before you stop the service and deploy the application.</p>
+<p><img src="/blog/posts/img/1__gQaa4OKFICJGj__ajdcDItA.jpeg" alt="Load balancer design"></p>
+<p>In this method for simplicity each application behind the load balancer on a single set of servers receives a single port designation. This is not a requirement of how the ALB works but it does help make deployment simpler.</p>
+<p>AWS has a good guide for setting up an Application Load Balancer.</p>
+<p><a href="https://docs.aws.amazon.com/elasticloadbalancing/latest/application/create-application-load-balancer.html">https://docs.aws.amazon.com/elasticloadbalancing/latest/application/create-application-load-balancer.html</a>.</p>
+<p>You can skip the <strong>Configure Targets for the Target Group</strong> (Step 5 at time of writing this) step as this will be handled by the deployment in Octopus Deploy.</p>
+<p>One item that I have missed a few times has been setting the <strong>Deregistration delay</strong> on the <strong>Target Group</strong>.</p>
+<blockquote>
+<p>The time to wait for in-flight requests to complete while deregistering a target. During this time, the state of the target is draining.</p>
+</blockquote>
+<p>Personally I recommend 2 times the longest HTTP request you expect your application to serve. This is to allow for any stray requests that could blow out.</p>
+<p><em>An example is if the application will possibly have a 30 second HTTP request then set it to 60 seconds.</em></p>
+<p><img src="/blog/posts/img/1__UsKE7iStye07or3AopoRHA.png" alt="The application in this image has an response time in under 100ms so is using a 1 second deregistration delay since that is the shortest value other than&nbsp;0.">
+<em>The application in this image has an response time in under 100ms so is using a 1 second deregistration delay since that is the shortest value other than&nbsp;0.</em></p>
+<h4 id="step-3-adding-and-removing-machines-from-targetgroup">Step 3 - Adding and removing machines from Target&nbsp;Group</h4>
+<p>This step is the part that allows for zero downtime deployment. Below is the the deployment process overview.</p>
+<ol>
+<li>Deregister the server from the target group</li>
+<li>Wait for Deregistration delay and all in-flight requests to finish</li>
+<li>Deploy updated service. See Step 1</li>
+<li>Register the server in the target group</li>
+<li>Wait for server to become healthy in the target group</li>
+</ol>
+<p>These steps need to be executed in a rolling manner. Depending on the number of servers you have and require to handle traffic will help you set the number of servers that can be out of the load balancer at a time. eg. If you have 2 servers then you will do a rolling deploy of 1 server at a time. For more information check out the Octopus documentation.</p>
+<p><a href="https://octopus.com/docs/deployment-patterns/rolling-deployments" title="https://octopus.com/docs/deployment-patterns/rolling-deployments"><strong>Rolling Deployments - Octopus Deploy</strong><br>
+_Rolling deployments are a pattern whereby, instead of deploying a package to all servers at once, we slowly roll out…_octopus.com</a><a href="https://octopus.com/docs/deployment-patterns/rolling-deployments"></a></p>
+<p>The deployment pipeline is based around 2 shell scripts. <code>PreDeploy.sh</code> to handle the removing of the server from the target group and <code>PostDeploy.sh</code> to register the server and wait for it to become healthy. Both scripts use <code>Shared.sh</code> to set up the environment and load all the variables that are needed and define the <code>describe-target-health</code> function that is used to output the current health for logging. By using the <code>source</code> keyword it executes the <code>Shared.sh</code> script as part of the current shell session and allows access to anything defined in that file.</p>
+<p><strong>Shared.sh</strong></p>
+<ol>
+<li>Define a reusable function <code>describe-target-health</code> that will consolidate displaying the current health of the server as the load balancer sees it</li>
+<li>Load the target group from octopus and verify it is set</li>
+<li>Get the current instance id from the instance metadata from the AWS instance metadata endpoint <a href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html">https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html</a></li>
+<li>Set up the AWS credentials</li>
+<li>Check the initial health of the server</li>
+</ol>
+<p><strong>PreDeploy.sh</strong></p>
+<ol>
+<li>Execute <code>Shared.sh</code> in current shell</li>
+<li>Drain stop the current instance from the target group</li>
+<li>Wait for target to be deregistered</li>
+</ol>
+<p><strong>PostDeploy.sh</strong></p>
+<ol>
+<li>Execute <code>Shared.sh</code> in current shell</li>
+<li>Register the current instance in the target group</li>
+<li>Wait for target to be registered</li>
+</ol>
+<h3 id="credit">Credit</h3>
+<p>The PreDeploy and PostDeploy scripts were based around <a href="http://library.octopus.com/step-templates/2abc4f4f-06f4-4af6-8b10-52651ab4d3d5/actiontemplate-aws-add-or-remove-instance-from-elbv2">http://library.octopus.com/step-templates/2abc4f4f-06f4-4af6-8b10-52651ab4d3d5/actiontemplate-aws-add-or-remove-instance-from-elbv2</a></p>
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+<script>$('img').addClass('img-fluid');</script>
+</main>
+<footer class="bg-light text-black">
+        <div class="container py-5 py-md-6">
+            <div class="row justify-content-md-between">
+                <div class="col-4 col-md-2">
+                    <h2 class="h6">About</h2>
+                    <ul class="nav flex-column">
+                        <li class="mb-1"><a href="#" class="text-muted">Team</a></li>
+                        <li class="mb-1"><a href="#" class="text-muted">Careers</a></li>
+                        <li class="mb-1"><a href="#" class="text-muted">Blog</a></li>
+                        <li class="mb-1"><a href="#" class="text-muted">Privacy Policy</a></li>
+                    </ul>
+                </div>
+                <div class="col-4 col-md-2">
+                    <h2 class="h6 mb-3">Services</h2>
+                    <ul class="nav flex-column">
+                        <li class="mb-1"><a href="#" class="text-muted">Branding</a></li>
+                        <li class="mb-1"><a href="#" class="text-muted">Design</a></li>
+                        <li class="mb-1"><a href="#" class="text-muted">Photography</a></li>
+                        <li class="mb-1"><a href="#" class="text-muted">UX/UI</a></li>
+                    </ul>
+                </div>
+                <div class="col-4 col-md-2">
+                    <h2 class="h6 mb-3">Social</h2>
+                    <ul class="nav flex-column">
+                        <li class="mb-1"><a href="#" class="text-muted">Twitter</a></li>
+                        <li class="mb-1"><a href="#" class="text-muted">Instagram</a></li>
+                        <li class="mb-1"><a href="#" class="text-muted">Dribbble</a></li>
+                        <li class="mb-1"><a href="#" class="text-muted">Facebook</a></li>
+                    </ul>
+                </div>
+                <div class="col-sm-12 col-md-4 mt-4 mt-md-0">
+                    <h2 class="h6 mb-3">Company</h2>
+                    <p class="text-muted">Focus is a responsive website theme based on Bootstrap 4. We help you to create a site that your users will love.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    
+
+</body></html>
